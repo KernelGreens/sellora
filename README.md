@@ -1,36 +1,60 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+Sellora — Social Commerce Made Simple
 
-## Getting Started
+Sellora is a modern platform designed to help small and medium-sized businesses (SMEs) manage and scale their sales operations across social channels like WhatsApp and Instagram.
 
-First, run the development server:
+In many emerging markets, businesses rely heavily on chat-based selling, which often leads to disorganized orders, lost customers, and inefficient workflows. Sellora solves this by providing a centralized system to manage orders, track payments, and build lasting customer relationships.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+🎯 Problem
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Most social sellers today:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Manage orders manually through chat
+Lose track of customer requests
+Struggle with payment confirmation
+Have no structured record of sales or customers
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+This results in lost revenue, poor customer experience, and limited business growth.
 
-## Learn More
+💡 Solution
 
-To learn more about Next.js, take a look at the following resources:
+Sellora transforms informal selling into structured commerce by offering:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+🛍️ Storefront Links — Shareable mini shops for customers
+📦 Order Management — Track and manage all orders in one place
+💰 Payment Tracking — Monitor payment status and confirmations
+👥 Customer Management — Build and retain customer data
+📊 Basic Analytics — Gain visibility into sales and performance
+📲 WhatsApp Integration — Communicate with customers seamlessly
+⚙️ Tech Stack
+Frontend: Next.js (App Router), TypeScript, Tailwind CSS
+Backend: Next.js API Routes / Server Actions
+Database: PostgreSQL
+ORM: Prisma
+Validation: Zod
+UI Components: shadcn/ui
+🧱 Architecture Overview
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Sellora is built with a modular and scalable architecture:
 
-## Deploy on Vercel
+Multi-tenant shop-based system
+Transaction-safe order processing
+Snapshot-based order items for data integrity
+Clean separation of services and API layers
+📌 MVP Scope
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The initial version focuses on:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Seller onboarding (shop + products)
+Public storefront
+Order creation via checkout
+Seller dashboard for order tracking
+Customer records
+Manual payment confirmation
+🔮 Vision
+
+Sellora aims to evolve into a full business operating system for SMEs, integrating:
+
+Payments and financial services
+Inventory management
+Logistics integration
+AI-driven business insights
