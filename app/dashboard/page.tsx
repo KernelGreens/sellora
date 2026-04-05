@@ -1,4 +1,34 @@
-export default function DashboardPage() {
+import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
+import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+
+export default async function DashboardPage() {
+  const session = await getServerSession(authOptions);
+
+  if (!session?.user?.id) {
+    redirect("/sign-in");
+  }
+
+  const shop = await prisma.shop.findUnique({
+    where: { userId: session.user.id },
+    select: {
+      id: true,
+      products: {
+        select: { id: true },
+        take: 1,
+      },
+    },
+  });
+
+  if (!shop) {
+    redirect("/onboarding/shop");
+  }
+
+  if (shop.products.length === 0) {
+    redirect("/onboarding/products");
+  }
+
   return (
     <div className="space-y-6">
       <section>
@@ -22,22 +52,6 @@ export default function DashboardPage() {
           </div>
         ))}
       </section>
-
-      <section className="grid gap-6 xl:grid-cols-2">
-        <div className="rounded-2xl border bg-white p-5 shadow-sm">
-          <h3 className="font-semibold">Recent Orders</h3>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Orders will appear here once customers start buying.
-          </p>
-        </div>
-
-        <div className="rounded-2xl border bg-white p-5 shadow-sm">
-          <h3 className="font-semibold">Top Products</h3>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Your best-performing products will appear here.
-          </p>
-        </div>
-      </section>
     </div>
-  )
+  );
 }
