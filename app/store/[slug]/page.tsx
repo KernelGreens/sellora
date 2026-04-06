@@ -1,6 +1,7 @@
 // app/store/[slug]/page.tsx
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { StorefrontProductCard } from "@/components/storefront/storefront-product-card";
 
 type StorefrontPageProps = {
   params: Promise<{ slug: string }>;
@@ -78,34 +79,18 @@ export default async function StorefrontPage({ params }: StorefrontPageProps) {
           ) : (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {shop.products.map((product) => (
-                <article
+                <StorefrontProductCard
                   key={product.id}
-                  className="rounded-2xl border bg-white p-5 shadow-sm"
-                >
-                  {product.imageUrl ? (
-                    <img
-                      src={product.imageUrl}
-                      alt={product.name}
-                      className="mb-4 aspect-square w-full rounded-xl object-cover"
-                    />
-                  ) : (
-                    <div className="mb-4 flex aspect-square items-center justify-center rounded-xl bg-muted text-sm text-muted-foreground">
-                      No image yet
-                    </div>
-                  )}
-
-                  <h3 className="text-lg font-semibold">{product.name}</h3>
-
-                  {product.description ? (
-                    <p className="mt-2 text-sm text-muted-foreground">
-                      {product.description}
-                    </p>
-                  ) : null}
-
-                  <p className="mt-4 text-lg font-bold">
-                    ₦{Number(product.price).toLocaleString()}
-                  </p>
-                </article>
+                  shopName={shop.name}
+                  whatsappNumber={shop.whatsappNumber}
+                  product={{
+                    id: product.id,
+                    name: product.name,
+                    description: product.description,
+                    price: Number(product.price),
+                    imageUrl: product.imageUrl,
+                  }}
+                />
               ))}
             </div>
           )}

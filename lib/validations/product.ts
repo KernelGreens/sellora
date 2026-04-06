@@ -18,6 +18,7 @@ export const createProductSchema = z.object({
 
   imageUrl: z
     .string()
+    .trim()
     .url("Enter a valid image URL")
     .optional()
     .or(z.literal("")),
