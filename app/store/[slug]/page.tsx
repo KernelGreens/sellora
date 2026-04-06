@@ -5,10 +5,34 @@ import { StorefrontProductCard } from "@/components/storefront/storefront-produc
 
 type StorefrontPageProps = {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{
+    productId?: string | string[];
+    quantity?: string | string[];
+  }>;
 };
 
-export default async function StorefrontPage({ params }: StorefrontPageProps) {
+function getSearchParamValue(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+function getSelectedQuantity(value: string | undefined) {
+  const parsed = Number.parseInt(value || "1", 10);
+
+  if (Number.isNaN(parsed) || parsed < 1) {
+    return 1;
+  }
+
+  return parsed;
+}
+
+export default async function StorefrontPage({
+  params,
+  searchParams,
+}: StorefrontPageProps) {
   const { slug } = await params;
+  const query = await searchParams;
+  const selectedProductId = getSearchParamValue(query.productId);
+  const selectedQuantity = getSelectedQuantity(getSearchParamValue(query.quantity));
 
   const shop = await prisma.shop.findUnique({
     where: { slug },
@@ -82,7 +106,11 @@ export default async function StorefrontPage({ params }: StorefrontPageProps) {
                 <StorefrontProductCard
                   key={product.id}
                   shopName={shop.name}
+                  shopSlug={shop.slug}
                   whatsappNumber={shop.whatsappNumber}
+                  selectedQuantity={
+                    selectedProductId === product.id ? selectedQuantity : 1
+                  }
                   product={{
                     id: product.id,
                     name: product.name,

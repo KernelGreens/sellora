@@ -1,10 +1,11 @@
-"use client";
-
-import { useMemo, useState } from "react";
+import Link from "next/link";
+import { formatNaira } from "@/lib/utils/currency";
 
 type StorefrontProductCardProps = {
   shopName: string;
+  shopSlug: string;
   whatsappNumber: string;
+  selectedQuantity: number;
   product: {
     id: string;
     name: string;
@@ -16,58 +17,36 @@ type StorefrontProductCardProps = {
 
 export function StorefrontProductCard({
   shopName,
+  shopSlug,
   whatsappNumber,
+  selectedQuantity,
   product,
 }: StorefrontProductCardProps) {
   const normalizedPrice = Number(product.price) || 0;
-  const [quantity, setQuantity] = useState<number>(1);
-
   const safeQuantity =
-    Number.isFinite(quantity) && quantity > 0 ? Math.floor(quantity) : 1;
+    Number.isFinite(selectedQuantity) && selectedQuantity > 0
+      ? Math.floor(selectedQuantity)
+      : 1;
 
   const total = normalizedPrice * safeQuantity;
 
-  function increaseQuantity() {
-    setQuantity((prev) => prev + 1);
-  }
-
-  function decreaseQuantity() {
-    setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
-  }
-
-  function handleQuantityChange(value: string) {
-    if (value.trim() === "") {
-      setQuantity(1);
-      return;
-    }
-
-    const parsed = parseInt(value, 10);
-
-    if (Number.isNaN(parsed) || parsed < 1) {
-      setQuantity(1);
-      return;
-    }
-
-    setQuantity(parsed);
-  }
-
-  const whatsappLink = useMemo(() => {
-    const message = encodeURIComponent(
-      `Hello 👋
-
-I want to place an order from ${shopName}.
-
-Product: ${product.name}
-Unit Price: ₦${normalizedPrice.toLocaleString()}
-Quantity: ${safeQuantity}
-Total: ₦${total.toLocaleString()}
-
-Please how do I proceed?`
-    );
-
-    const phone = whatsappNumber.replace(/\D/g, "");
-    return `https://api.whatsapp.com/send?phone=${phone}&text=${message}`;
-  }, [shopName, product.name, normalizedPrice, safeQuantity, total, whatsappNumber]);
+  const whatsappMessage = encodeURIComponent(
+    `Hello,\n\nI want to place an order from ${shopName}.\n\nProduct: ${product.name}\nUnit Price: ${formatNaira(
+      normalizedPrice
+    )}\nQuantity: ${safeQuantity}\nTotal: ${formatNaira(
+      total
+    )}\n\nPlease how do I proceed?`
+  );
+  const whatsappLink = `https://api.whatsapp.com/send?phone=${whatsappNumber.replace(
+    /\D/g,
+    ""
+  )}&text=${whatsappMessage}`;
+  const decrementHref = `/store/${shopSlug}?productId=${product.id}&quantity=${Math.max(
+    1,
+    safeQuantity - 1
+  )}`;
+  const incrementHref = `/store/${shopSlug}?productId=${product.id}&quantity=${safeQuantity + 1}`;
+  const checkoutHref = `/store/${shopSlug}/checkout?productId=${product.id}&quantity=${safeQuantity}`;
 
   return (
     <article className="rounded-2xl border bg-white p-5 shadow-sm">
@@ -92,7 +71,7 @@ Please how do I proceed?`
       ) : null}
 
       <p className="mt-4 text-lg font-bold">
-        ₦{normalizedPrice.toLocaleString()}
+        {formatNaira(normalizedPrice)}
       </p>
 
       <div className="mt-4">
@@ -104,49 +83,58 @@ Please how do I proceed?`
         </label>
 
         <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={decreaseQuantity}
-            className="rounded-lg border px-3 py-2 text-sm"
+          <Link
+            href={decrementHref}
+            className="touch-manipulation rounded-lg border px-3 py-2 text-sm select-none"
+            aria-label={`Decrease quantity for ${product.name}`}
           >
             -
-          </button>
+          </Link>
 
           <input
             id={`quantity-${product.id}`}
             type="number"
             min={1}
             step={1}
+            readOnly
             value={safeQuantity}
-            onChange={(e) => handleQuantityChange(e.target.value)}
             className="w-20 rounded-lg border px-3 py-2 text-center"
           />
 
-          <button
-            type="button"
-            onClick={increaseQuantity}
-            className="rounded-lg border px-3 py-2 text-sm"
+          <Link
+            href={incrementHref}
+            className="touch-manipulation rounded-lg border px-3 py-2 text-sm select-none"
+            aria-label={`Increase quantity for ${product.name}`}
           >
             +
-          </button>
+          </Link>
         </div>
       </div>
 
       <p className="mt-3 text-sm text-muted-foreground">
         Total:{" "}
         <span className="font-medium text-foreground">
-          ₦{total.toLocaleString()}
+          {formatNaira(total)}
         </span>
       </p>
 
-      <a
-        href={whatsappLink}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="mt-4 inline-flex w-full items-center justify-center rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700"
-      >
-        Order on WhatsApp
-      </a>
+      <div className="mt-4 space-y-2">
+        <Link
+          href={checkoutHref}
+          className="inline-flex w-full items-center justify-center rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700"
+        >
+          Continue Order
+        </Link>
+
+        <a
+          href={whatsappLink}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex w-full items-center justify-center rounded-lg border px-4 py-2 text-sm font-medium"
+        >
+          Quick Chat on WhatsApp
+        </a>
+      </div>
     </article>
   );
 }
