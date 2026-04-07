@@ -150,7 +150,12 @@ export default async function DashboardOrdersPage() {
                     <TableRow key={order.id}>
                       <TableCell className="align-top">
                         <div className="space-y-1">
-                          <p className="font-medium">{order.orderNumber}</p>
+                          <Link
+                            href={`/dashboard/orders/${order.id}`}
+                            className="font-medium transition-colors hover:text-primary"
+                          >
+                            {order.orderNumber}
+                          </Link>
                           <p className="max-w-56 text-sm text-muted-foreground">
                             {order.productSummary}
                           </p>

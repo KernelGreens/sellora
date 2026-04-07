@@ -1,7 +1,11 @@
 import { randomUUID } from "node:crypto";
 import { prisma } from "@/lib/prisma";
 import type { CreateStorefrontOrderInput } from "@/lib/validations/order";
-import type { SellerOrderListData, SellerOrderListItem } from "@/types/order";
+import type {
+  SellerOrderDetailData,
+  SellerOrderListData,
+  SellerOrderListItem,
+} from "@/types/order";
 import {
   buildStorefrontOrderWhatsAppUrl,
   normalizePhoneNumber,
@@ -346,5 +350,124 @@ export async function getSellerOrderListData(
       paidOrders,
       collectedRevenue: Number(paidRevenue._sum.totalAmount ?? 0),
     },
+  };
+}
+
+export async function getSellerOrderDetailData(
+  userId: string,
+  orderId: string
+): Promise<SellerOrderDetailData | null> {
+  const shop = await prisma.shop.findUnique({
+    where: { userId },
+    select: {
+      id: true,
+      name: true,
+    },
+  });
+
+  if (!shop) {
+    return null;
+  }
+
+  const order = await prisma.order.findFirst({
+    where: {
+      id: orderId,
+      shopId: shop.id,
+    },
+    select: {
+      id: true,
+      orderNumber: true,
+      createdAt: true,
+      updatedAt: true,
+      subtotal: true,
+      deliveryFee: true,
+      totalAmount: true,
+      paymentStatus: true,
+      orderStatus: true,
+      paymentReference: true,
+      paymentProofUrl: true,
+      deliveryAddress: true,
+      customerNote: true,
+      internalNote: true,
+      customer: {
+        select: {
+          id: true,
+          name: true,
+          phone: true,
+          email: true,
+          createdAt: true,
+        },
+      },
+      items: {
+        orderBy: {
+          createdAt: "asc",
+        },
+        select: {
+          id: true,
+          productId: true,
+          productNameSnapshot: true,
+          unitPrice: true,
+          quantity: true,
+          lineTotal: true,
+        },
+      },
+      statusLogs: {
+        orderBy: {
+          changedAt: "desc",
+        },
+        select: {
+          id: true,
+          oldStatus: true,
+          newStatus: true,
+          note: true,
+          changedAt: true,
+        },
+      },
+    },
+  });
+
+  if (!order) {
+    return null;
+  }
+
+  return {
+    id: order.id,
+    orderNumber: order.orderNumber,
+    shopName: shop.name,
+    createdAt: order.createdAt.toISOString(),
+    updatedAt: order.updatedAt.toISOString(),
+    subtotal: Number(order.subtotal),
+    deliveryFee: order.deliveryFee === null ? null : Number(order.deliveryFee),
+    totalAmount: Number(order.totalAmount),
+    paymentStatus: order.paymentStatus,
+    orderStatus: order.orderStatus,
+    paymentReference: order.paymentReference,
+    paymentProofUrl: order.paymentProofUrl,
+    deliveryAddress: order.deliveryAddress,
+    customerNote: order.customerNote,
+    internalNote: order.internalNote,
+    itemCount: order.items.reduce((total, item) => total + item.quantity, 0),
+    customer: {
+      id: order.customer.id,
+      name: order.customer.name,
+      phone: order.customer.phone,
+      email: order.customer.email,
+      createdAt: order.customer.createdAt.toISOString(),
+    },
+    items: order.items.map((item) => ({
+      id: item.id,
+      productId: item.productId,
+      productName: item.productNameSnapshot,
+      unitPrice: Number(item.unitPrice),
+      quantity: item.quantity,
+      lineTotal: Number(item.lineTotal),
+    })),
+    statusLogs: order.statusLogs.map((log) => ({
+      id: log.id,
+      oldStatus: log.oldStatus,
+      newStatus: log.newStatus,
+      note: log.note,
+      changedAt: log.changedAt.toISOString(),
+    })),
   };
 }
