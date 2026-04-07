@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { prisma } from "@/lib/prisma";
 import type { CreateStorefrontOrderInput } from "@/lib/validations/order";
+import type { SellerOrderListData, SellerOrderListItem } from "@/types/order";
 import {
   buildStorefrontOrderWhatsAppUrl,
   normalizePhoneNumber,
@@ -20,6 +21,44 @@ type CreateStorefrontOrderParams = {
   shopSlug: string;
   input: CreateStorefrontOrderInput;
 };
+
+function serializeSellerOrderListItem(order: {
+  id: string;
+  orderNumber: string;
+  createdAt: Date;
+  totalAmount: { toString(): string };
+  orderStatus: SellerOrderListItem["orderStatus"];
+  paymentStatus: SellerOrderListItem["paymentStatus"];
+  customer: {
+    name: string;
+    phone: string;
+  };
+  items: Array<{
+    productNameSnapshot: string;
+    quantity: number;
+  }>;
+}): SellerOrderListItem {
+  const itemCount = order.items.reduce((total, item) => total + item.quantity, 0);
+  const firstItem = order.items[0];
+  const extraProductsCount = Math.max(order.items.length - 1, 0);
+
+  return {
+    id: order.id,
+    orderNumber: order.orderNumber,
+    createdAt: order.createdAt.toISOString(),
+    customerName: order.customer.name,
+    customerPhone: order.customer.phone,
+    itemCount,
+    productSummary: firstItem
+      ? extraProductsCount > 0
+        ? `${firstItem.productNameSnapshot} +${extraProductsCount} more`
+        : firstItem.productNameSnapshot
+      : "No items",
+    totalAmount: Number(order.totalAmount),
+    orderStatus: order.orderStatus,
+    paymentStatus: order.paymentStatus,
+  };
+}
 
 function decimalStringFromKobo(amountKobo: number) {
   return (amountKobo / 100).toFixed(2);
@@ -215,5 +254,97 @@ export async function createStorefrontOrder({
     orderNumber: order.orderNumber,
     whatsappUrl,
     successPath: `/store/${shop.slug}/success/${order.id}`,
+  };
+}
+
+export async function getSellerOrderListData(
+  userId: string
+): Promise<SellerOrderListData | null> {
+  const shop = await prisma.shop.findUnique({
+    where: { userId },
+    select: {
+      id: true,
+      name: true,
+      orders: {
+        orderBy: {
+          createdAt: "desc",
+        },
+        select: {
+          id: true,
+          orderNumber: true,
+          createdAt: true,
+          totalAmount: true,
+          orderStatus: true,
+          paymentStatus: true,
+          customer: {
+            select: {
+              name: true,
+              phone: true,
+            },
+          },
+          items: {
+            select: {
+              productNameSnapshot: true,
+              quantity: true,
+            },
+            orderBy: {
+              createdAt: "asc",
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!shop) {
+    return null;
+  }
+
+  const [totalOrders, newOrders, awaitingPaymentOrders, paidOrders, paidRevenue] =
+    await prisma.$transaction([
+      prisma.order.count({
+        where: {
+          shopId: shop.id,
+        },
+      }),
+      prisma.order.count({
+        where: {
+          shopId: shop.id,
+          orderStatus: "NEW",
+        },
+      }),
+      prisma.order.count({
+        where: {
+          shopId: shop.id,
+          paymentStatus: "PENDING",
+        },
+      }),
+      prisma.order.count({
+        where: {
+          shopId: shop.id,
+          paymentStatus: "PAID",
+        },
+      }),
+      prisma.order.aggregate({
+        where: {
+          shopId: shop.id,
+          paymentStatus: "PAID",
+        },
+        _sum: {
+          totalAmount: true,
+        },
+      }),
+    ]);
+
+  return {
+    shopName: shop.name,
+    orders: shop.orders.map(serializeSellerOrderListItem),
+    summary: {
+      totalOrders,
+      newOrders,
+      awaitingPaymentOrders,
+      paidOrders,
+      collectedRevenue: Number(paidRevenue._sum.totalAmount ?? 0),
+    },
   };
 }
