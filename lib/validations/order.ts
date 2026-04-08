@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { ORDER_STATUS_UPDATE_OPTIONS } from "@/lib/constants/order-status";
 
 export const createStorefrontOrderSchema = z.object({
   productId: z.cuid("Invalid product selected"),
@@ -39,4 +40,20 @@ export const createStorefrontOrderSchema = z.object({
 
 export type CreateStorefrontOrderInput = z.infer<
   typeof createStorefrontOrderSchema
+>;
+
+export const updateSellerOrderStatusSchema = z.object({
+  status: z.enum(ORDER_STATUS_UPDATE_OPTIONS, {
+    error: "Select a valid order status",
+  }),
+  note: z
+    .string()
+    .trim()
+    .max(300, "Status note is too long")
+    .optional()
+    .or(z.literal("")),
+});
+
+export type UpdateSellerOrderStatusInput = z.infer<
+  typeof updateSellerOrderStatusSchema
 >;

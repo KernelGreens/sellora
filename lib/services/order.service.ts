@@ -1,6 +1,14 @@
 import { randomUUID } from "node:crypto";
+import type { PaymentStatus } from "@/lib/generated/prisma";
+import {
+  canUpdateOrderStatus,
+  getOrderStatusMeta,
+} from "@/lib/constants/order-status";
 import { prisma } from "@/lib/prisma";
-import type { CreateStorefrontOrderInput } from "@/lib/validations/order";
+import type {
+  CreateStorefrontOrderInput,
+  UpdateSellerOrderStatusInput,
+} from "@/lib/validations/order";
 import type {
   SellerOrderDetailData,
   SellerOrderListData,
@@ -104,6 +112,17 @@ async function generateOrderNumber(shopSlug: string) {
     "Unable to create a unique order reference right now",
     500
   );
+}
+
+function getPaymentStatusForOrderStatus(nextStatus: UpdateSellerOrderStatusInput["status"]) {
+  const paymentStatusMap: Partial<
+    Record<UpdateSellerOrderStatusInput["status"], PaymentStatus>
+  > = {
+    AWAITING_PAYMENT: "PENDING",
+    PAID: "PAID",
+  };
+
+  return paymentStatusMap[nextStatus];
 }
 
 export async function createStorefrontOrder({
@@ -469,5 +488,114 @@ export async function getSellerOrderDetailData(
       note: log.note,
       changedAt: log.changedAt.toISOString(),
     })),
+  };
+}
+
+export async function updateSellerOrderStatus(
+  userId: string,
+  orderId: string,
+  input: UpdateSellerOrderStatusInput
+) {
+  const shop = await prisma.shop.findUnique({
+    where: { userId },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!shop) {
+    return null;
+  }
+
+  const order = await prisma.order.findFirst({
+    where: {
+      id: orderId,
+      shopId: shop.id,
+    },
+    select: {
+      id: true,
+      orderNumber: true,
+      orderStatus: true,
+      paymentStatus: true,
+    },
+  });
+
+  if (!order) {
+    return null;
+  }
+
+  if (order.orderStatus === input.status) {
+    throw new OrderServiceError("Order is already in that status");
+  }
+
+  if (!canUpdateOrderStatus(order.orderStatus, input.status)) {
+    const currentStatusLabel = getOrderStatusMeta(order.orderStatus).label;
+    const nextStatusLabel = getOrderStatusMeta(input.status).label;
+
+    throw new OrderServiceError(
+      `Cannot move this order from ${currentStatusLabel} to ${nextStatusLabel}`
+    );
+  }
+
+  const note = input.note?.trim() || null;
+  const nextPaymentStatus = getPaymentStatusForOrderStatus(input.status);
+
+  const updatedOrder = await prisma.$transaction(async (tx) => {
+    const nextOrder = await tx.order.update({
+      where: {
+        id: order.id,
+      },
+      data: {
+        orderStatus: input.status,
+        ...(nextPaymentStatus
+          ? {
+              paymentStatus: nextPaymentStatus,
+            }
+          : {}),
+      },
+      select: {
+        id: true,
+        orderNumber: true,
+        orderStatus: true,
+        paymentStatus: true,
+        updatedAt: true,
+      },
+    });
+
+    const statusLog = await tx.orderStatusLog.create({
+      data: {
+        orderId: order.id,
+        oldStatus: order.orderStatus,
+        newStatus: input.status,
+        note,
+      },
+      select: {
+        id: true,
+        oldStatus: true,
+        newStatus: true,
+        note: true,
+        changedAt: true,
+      },
+    });
+
+    return {
+      ...nextOrder,
+      statusLog,
+    };
+  });
+
+  return {
+    id: updatedOrder.id,
+    orderNumber: updatedOrder.orderNumber,
+    orderStatus: updatedOrder.orderStatus,
+    paymentStatus: updatedOrder.paymentStatus,
+    updatedAt: updatedOrder.updatedAt.toISOString(),
+    statusLog: {
+      id: updatedOrder.statusLog.id,
+      oldStatus: updatedOrder.statusLog.oldStatus,
+      newStatus: updatedOrder.statusLog.newStatus,
+      note: updatedOrder.statusLog.note,
+      changedAt: updatedOrder.statusLog.changedAt.toISOString(),
+    },
   };
 }

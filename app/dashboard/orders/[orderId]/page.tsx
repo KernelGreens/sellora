@@ -29,6 +29,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { OrderStatusUpdateForm } from "@/components/dashboard/order-status-update-form";
 import { authOptions } from "@/lib/auth";
 import { getOrderStatusMeta } from "@/lib/constants/order-status";
 import { getPaymentStatusMeta } from "@/lib/constants/payment-status";
@@ -257,6 +258,12 @@ export default async function OrderDetailPage({
         </div>
 
         <div className="space-y-6">
+          <OrderStatusUpdateForm
+            key={`${order.id}-${order.orderStatus}`}
+            orderId={order.id}
+            currentStatus={order.orderStatus}
+          />
+
           <Card>
             <CardHeader>
               <CardTitle>Customer</CardTitle>

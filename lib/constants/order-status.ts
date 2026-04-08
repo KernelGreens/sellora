@@ -37,3 +37,34 @@ export const ORDER_STATUS_META: Record<
 export function getOrderStatusMeta(status: OrderStatus) {
   return ORDER_STATUS_META[status];
 }
+
+export const ORDER_STATUS_UPDATE_OPTIONS: OrderStatus[] = [
+  "NEW",
+  "AWAITING_PAYMENT",
+  "PAID",
+  "PROCESSING",
+  "SHIPPED",
+  "COMPLETED",
+  "CANCELLED",
+];
+
+export const ORDER_STATUS_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
+  NEW: ["AWAITING_PAYMENT", "PAID", "PROCESSING", "CANCELLED"],
+  AWAITING_PAYMENT: ["PAID", "CANCELLED"],
+  PAID: ["PROCESSING", "CANCELLED"],
+  PROCESSING: ["SHIPPED", "COMPLETED", "CANCELLED"],
+  SHIPPED: ["COMPLETED"],
+  COMPLETED: [],
+  CANCELLED: [],
+};
+
+export function getAllowedOrderStatusTransitions(status: OrderStatus) {
+  return ORDER_STATUS_TRANSITIONS[status];
+}
+
+export function canUpdateOrderStatus(
+  currentStatus: OrderStatus,
+  nextStatus: OrderStatus
+) {
+  return getAllowedOrderStatusTransitions(currentStatus).includes(nextStatus);
+}
