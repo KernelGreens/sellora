@@ -1,3 +1,4 @@
+import type { Prisma } from "@/lib/generated/prisma";
 import { randomUUID } from "node:crypto";
 import type { PaymentStatus } from "@/lib/generated/prisma";
 import {
@@ -7,6 +8,7 @@ import {
 import { prisma } from "@/lib/prisma";
 import type {
   CreateStorefrontOrderInput,
+  SellerOrderHistoryFiltersInput,
   UpdateSellerOrderStatusInput,
 } from "@/lib/validations/order";
 import type {
@@ -281,46 +283,72 @@ export async function createStorefrontOrder({
 }
 
 export async function getSellerOrderListData(
-  userId: string
+  userId: string,
+  filtersInput?: SellerOrderHistoryFiltersInput
 ): Promise<SellerOrderListData | null> {
   const shop = await prisma.shop.findUnique({
     where: { userId },
     select: {
       id: true,
       name: true,
-      orders: {
-        orderBy: {
-          createdAt: "desc",
-        },
-        select: {
-          id: true,
-          orderNumber: true,
-          createdAt: true,
-          totalAmount: true,
-          orderStatus: true,
-          paymentStatus: true,
-          customer: {
-            select: {
-              name: true,
-              phone: true,
-            },
-          },
-          items: {
-            select: {
-              productNameSnapshot: true,
-              quantity: true,
-            },
-            orderBy: {
-              createdAt: "asc",
-            },
-          },
-        },
-      },
     },
   });
 
   if (!shop) {
     return null;
+  }
+
+  const pageSize = 10;
+  const page = Math.max(filtersInput?.page ?? 1, 1);
+  const query = filtersInput?.q?.trim() ?? "";
+  const orderStatus = filtersInput?.orderStatus ?? "ALL";
+  const paymentStatus = filtersInput?.paymentStatus ?? "ALL";
+  const where: Prisma.OrderWhereInput = {
+    shopId: shop.id,
+  };
+
+  if (query) {
+    where.OR = [
+      {
+        orderNumber: {
+          contains: query,
+          mode: "insensitive",
+        },
+      },
+      {
+        customer: {
+          name: {
+            contains: query,
+            mode: "insensitive",
+          },
+        },
+      },
+      {
+        customer: {
+          phone: {
+            contains: query,
+          },
+        },
+      },
+      {
+        items: {
+          some: {
+            productNameSnapshot: {
+              contains: query,
+              mode: "insensitive",
+            },
+          },
+        },
+      },
+    ];
+  }
+
+  if (orderStatus !== "ALL") {
+    where.orderStatus = orderStatus;
+  }
+
+  if (paymentStatus !== "ALL") {
+    where.paymentStatus = paymentStatus;
   }
 
   const [totalOrders, newOrders, awaitingPaymentOrders, paidOrders, paidRevenue] =
@@ -359,15 +387,65 @@ export async function getSellerOrderListData(
       }),
     ]);
 
+  const filteredTotalItems = await prisma.order.count({
+    where,
+  });
+  const totalPages = Math.max(Math.ceil(filteredTotalItems / pageSize), 1);
+  const safePage = Math.min(page, totalPages);
+  const orders = await prisma.order.findMany({
+    where,
+    orderBy: {
+      createdAt: "desc",
+    },
+    skip: (safePage - 1) * pageSize,
+    take: pageSize,
+    select: {
+      id: true,
+      orderNumber: true,
+      createdAt: true,
+      totalAmount: true,
+      orderStatus: true,
+      paymentStatus: true,
+      customer: {
+        select: {
+          name: true,
+          phone: true,
+        },
+      },
+      items: {
+        select: {
+          productNameSnapshot: true,
+          quantity: true,
+        },
+        orderBy: {
+          createdAt: "asc",
+        },
+      },
+    },
+  });
+
   return {
     shopName: shop.name,
-    orders: shop.orders.map(serializeSellerOrderListItem),
+    orders: orders.map(serializeSellerOrderListItem),
     summary: {
       totalOrders,
       newOrders,
       awaitingPaymentOrders,
       paidOrders,
       collectedRevenue: Number(paidRevenue._sum.totalAmount ?? 0),
+    },
+    filters: {
+      query,
+      orderStatus,
+      paymentStatus,
+    },
+    pagination: {
+      page: safePage,
+      pageSize,
+      totalItems: filteredTotalItems,
+      totalPages,
+      hasPreviousPage: safePage > 1,
+      hasNextPage: safePage < totalPages,
     },
   };
 }

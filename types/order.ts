@@ -21,10 +21,27 @@ export type SellerOrderListSummary = {
   collectedRevenue: number;
 };
 
+export type SellerOrderListFilters = {
+  query: string;
+  orderStatus: "ALL" | OrderStatus;
+  paymentStatus: "ALL" | PaymentStatus;
+};
+
+export type SellerOrderListPagination = {
+  page: number;
+  pageSize: number;
+  totalItems: number;
+  totalPages: number;
+  hasPreviousPage: boolean;
+  hasNextPage: boolean;
+};
+
 export type SellerOrderListData = {
   shopName: string;
   orders: SellerOrderListItem[];
   summary: SellerOrderListSummary;
+  filters: SellerOrderListFilters;
+  pagination: SellerOrderListPagination;
 };
 
 export type SellerOrderDetailItem = {

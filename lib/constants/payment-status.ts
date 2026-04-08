@@ -25,3 +25,10 @@ export const PAYMENT_STATUS_META: Record<
 export function getPaymentStatusMeta(status: PaymentStatus) {
   return PAYMENT_STATUS_META[status];
 }
+
+export const PAYMENT_STATUS_OPTIONS: PaymentStatus[] = [
+  "PENDING",
+  "PAID",
+  "FAILED",
+  "REFUNDED",
+];
