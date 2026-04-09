@@ -5,6 +5,7 @@ import { FormEvent, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ProductImageField } from "@/components/shared/product-image-field";
 
 type ProductDraft = {
   name: string;
@@ -25,6 +26,7 @@ export function OnboardingProductsForm() {
   const [products, setProducts] = useState<ProductDraft[]>([emptyProduct()]);
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [uploadingCount, setUploadingCount] = useState(0);
 
   function updateProduct(index: number, field: keyof ProductDraft, value: string) {
     setProducts((prev) =>
@@ -45,6 +47,12 @@ export function OnboardingProductsForm() {
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError("");
+
+    if (uploadingCount > 0) {
+      setError("Wait for image uploads to finish before saving products.");
+      return;
+    }
+
     setIsSubmitting(true);
 
     const payload = {
@@ -140,19 +148,16 @@ export function OnboardingProductsForm() {
               />
             </div>
 
-            <div>
-              <Label htmlFor={`imageUrl-${index}`}>Product Image URL (optional for now)</Label>
-              <Input
-                id={`imageUrl-${index}`}
-                value={product.imageUrl}
-                onChange={(e) => updateProduct(index, "imageUrl", e.target.value)}
-                placeholder="Leave blank for now, or paste an image link"
-                className="mt-1.5"
-              />
-              <p className="mt-1 text-xs text-muted-foreground">
-                Direct image upload will be added next. You can skip this field for now.
-              </p>
-            </div>
+            <ProductImageField
+              value={product.imageUrl}
+              onChange={(value) => updateProduct(index, "imageUrl", value)}
+              onUploadStateChange={(isUploading) =>
+                setUploadingCount((current) =>
+                  isUploading ? current + 1 : Math.max(current - 1, 0)
+                )
+              }
+              disabled={isSubmitting}
+            />
           </div>
         </div>
       ))}
@@ -162,8 +167,16 @@ export function OnboardingProductsForm() {
           Add Another Product
         </Button>
 
-        <Button type="submit" className="sm:ml-auto" disabled={isSubmitting}>
-          {isSubmitting ? "Saving Products..." : "Finish Setup"}
+        <Button
+          type="submit"
+          className="sm:ml-auto"
+          disabled={isSubmitting || uploadingCount > 0}
+        >
+          {isSubmitting
+            ? "Saving Products..."
+            : uploadingCount > 0
+              ? "Uploading image..."
+              : "Finish Setup"}
         </Button>
       </div>
     </form>

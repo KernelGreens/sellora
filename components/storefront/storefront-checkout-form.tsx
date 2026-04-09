@@ -6,7 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { submitStorefrontOrder } from "@/app/store/[slug]/checkout/actions";
+import {
+  submitStorefrontOrder,
+  type StorefrontCheckoutActionState,
+} from "@/app/store/[slug]/checkout/actions";
 import { formatNaira } from "@/lib/utils/currency";
 
 type StorefrontCheckoutFormProps = {
@@ -20,7 +23,7 @@ type StorefrontCheckoutFormProps = {
   initialQuantity: number;
 };
 
-const initialStorefrontCheckoutActionState = {
+const initialStorefrontCheckoutActionState: StorefrontCheckoutActionState = {
   message: "",
   errors: {},
 };
@@ -60,7 +63,7 @@ export function StorefrontCheckoutForm({
     setForm((prev) => ({ ...prev, [name]: value }));
   }
 
-  function getFieldError(name: string) {
+  function getFieldError(name: keyof StorefrontCheckoutActionState["errors"]) {
     return state.errors[name]?.[0];
   }
 

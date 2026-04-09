@@ -58,3 +58,35 @@ Payments and financial services
 Inventory management
 Logistics integration
 AI-driven business insights
+
+## File Upload Storage
+
+Product image uploads are controlled with `FILE_STORAGE` in `.env`.
+
+- `FILE_STORAGE=local`
+  Saves uploads to `public/uploads` for local development.
+- `FILE_STORAGE=s3`
+  Uploads directly to S3-compatible object storage.
+- `FILE_STORAGE=cloudinary`
+  Uploads directly to Cloudinary.
+
+Recommended usage:
+
+- use `local` during development
+- use `s3` or `cloudinary` in production
+
+Supported environment variables:
+
+- `FILE_STORAGE`
+- `MAX_UPLOAD_SIZE_MB`
+- `S3_BUCKET`
+- `S3_REGION`
+- `S3_ACCESS_KEY_ID`
+- `S3_SECRET_ACCESS_KEY`
+- `S3_SESSION_TOKEN`
+- `S3_ENDPOINT`
+- `S3_PUBLIC_BASE_URL`
+- `S3_FORCE_PATH_STYLE`
+- `CLOUDINARY_CLOUD_NAME`
+- `CLOUDINARY_API_KEY`
+- `CLOUDINARY_API_SECRET`

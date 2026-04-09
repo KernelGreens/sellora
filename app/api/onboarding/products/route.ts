@@ -1,19 +1,18 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getRequestAuthUser } from "@/lib/auth-session";
 import { prisma } from "@/lib/prisma";
 import { createManyProductsSchema } from "@/lib/validations/product";
 
 export async function POST(request: Request) {
   try {
-    const session = await getServerSession(authOptions);
+    const user = await getRequestAuthUser(request);
 
-    if (!session?.user?.id) {
+    if (!user) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
     const shop = await prisma.shop.findUnique({
-      where: { userId: session.user.id },
+      where: { userId: user.id },
       select: { id: true },
     });
 
@@ -42,6 +41,7 @@ export async function POST(request: Request) {
       name: product.name.trim(),
       description: product.description?.trim() || null,
       price: product.price,
+      stockQuantity: product.stockQuantity ?? null,
       imageUrl: product.imageUrl?.trim() || null,
       isActive: product.isActive ?? true,
     }));

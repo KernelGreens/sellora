@@ -1,16 +1,15 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getRequestAuthUser } from "@/lib/auth-session";
 import { getSellerOrderListData } from "@/lib/services/order.service";
 
-export async function GET() {
-  const session = await getServerSession(authOptions);
+export async function GET(request: Request) {
+  const user = await getRequestAuthUser(request);
 
-  if (!session?.user?.id) {
+  if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const data = await getSellerOrderListData(session.user.id);
+  const data = await getSellerOrderListData(user.id);
 
   if (!data) {
     return NextResponse.json({ error: "Shop not found" }, { status: 404 });

@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { format } from "date-fns";
 import { PackageSearch, ShoppingBag } from "lucide-react";
-import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -42,7 +41,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { authOptions } from "@/lib/auth";
+import { getServerAuthUser } from "@/lib/auth-session";
 import { Button } from "@/components/ui/button";
 import {
   ORDER_STATUS_UPDATE_OPTIONS,
@@ -121,9 +120,9 @@ function getPaginationItems(currentPage: number, totalPages: number) {
 export default async function DashboardOrdersPage({
   searchParams,
 }: DashboardOrdersPageProps) {
-  const session = await getServerSession(authOptions);
+  const user = await getServerAuthUser();
 
-  if (!session?.user?.id) {
+  if (!user) {
     redirect("/sign-in");
   }
 
@@ -135,7 +134,7 @@ export default async function DashboardOrdersPage({
     page: getSearchParamValue(rawQuery.page),
   });
   const filtersInput = parsedFilters.success ? parsedFilters.data : {};
-  const orderListData = await getSellerOrderListData(session.user.id, filtersInput);
+  const orderListData = await getSellerOrderListData(user.id, filtersInput);
 
   if (!orderListData) {
     redirect("/onboarding/shop");

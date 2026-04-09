@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getRequestAuthUser } from "@/lib/auth-session";
 import { OrderServiceError, updateSellerOrderStatus } from "@/lib/services/order.service";
 import { updateSellerOrderStatusSchema } from "@/lib/validations/order";
 
@@ -11,9 +10,9 @@ type RouteContext = {
 };
 
 export async function PATCH(request: Request, context: RouteContext) {
-  const session = await getServerSession(authOptions);
+  const user = await getRequestAuthUser(request);
 
-  if (!session?.user?.id) {
+  if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -34,7 +33,7 @@ export async function PATCH(request: Request, context: RouteContext) {
 
   try {
     const updatedOrder = await updateSellerOrderStatus(
-      session.user.id,
+      user.id,
       orderId,
       parsed.data
     );

@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { format } from "date-fns";
 import { ArrowLeft, Copy, MapPin, Package, Phone, ReceiptText } from "lucide-react";
-import { getServerSession } from "next-auth";
 import { notFound, redirect } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -30,7 +29,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { OrderStatusUpdateForm } from "@/components/dashboard/order-status-update-form";
-import { authOptions } from "@/lib/auth";
+import { getServerAuthUser } from "@/lib/auth-session";
 import { getOrderStatusMeta } from "@/lib/constants/order-status";
 import { getPaymentStatusMeta } from "@/lib/constants/payment-status";
 import { getSellerOrderDetailData } from "@/lib/services/order.service";
@@ -49,14 +48,14 @@ function formatDateTime(value: string) {
 export default async function OrderDetailPage({
   params,
 }: OrderDetailPageProps) {
-  const session = await getServerSession(authOptions);
+  const user = await getServerAuthUser();
 
-  if (!session?.user?.id) {
+  if (!user) {
     redirect("/sign-in");
   }
 
   const { orderId } = await params;
-  const order = await getSellerOrderDetailData(session.user.id, orderId);
+  const order = await getSellerOrderDetailData(user.id, orderId);
 
   if (!order) {
     notFound();

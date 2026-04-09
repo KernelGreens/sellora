@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getRequestAuthUser } from "@/lib/auth-session";
 import { getSellerOrderDetailData } from "@/lib/services/order.service";
 
 type RouteContext = {
@@ -10,14 +9,14 @@ type RouteContext = {
 };
 
 export async function GET(_request: Request, context: RouteContext) {
-  const session = await getServerSession(authOptions);
+  const user = await getRequestAuthUser(_request);
 
-  if (!session?.user?.id) {
+  if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const { orderId } = await context.params;
-  const data = await getSellerOrderDetailData(session.user.id, orderId);
+  const data = await getSellerOrderDetailData(user.id, orderId);
 
   if (!data) {
     return NextResponse.json({ error: "Order not found" }, { status: 404 });

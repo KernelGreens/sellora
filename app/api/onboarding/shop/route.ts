@@ -1,15 +1,14 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getRequestAuthUser } from "@/lib/auth-session";
 import { prisma } from "@/lib/prisma";
 import { createShopSchema } from "@/lib/validations/shop";
 import { normalizeSlug } from "@/lib/utils/slug";
 
 export async function POST(request: Request) {
   try {
-    const session = await getServerSession(authOptions);
+    const user = await getRequestAuthUser(request);
 
-    if (!session?.user?.id) {
+    if (!user) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
@@ -26,7 +25,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const userId = session.user.id;
+    const userId = user.id;
     const data = parsed.data;
     const normalizedSlug = normalizeSlug(data.slug);
 

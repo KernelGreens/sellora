@@ -1,17 +1,16 @@
-import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
-import { authOptions } from "@/lib/auth";
+import { getServerAuthUser } from "@/lib/auth-session";
 import { prisma } from "@/lib/prisma";
 
 export default async function DashboardPage() {
-  const session = await getServerSession(authOptions);
+  const user = await getServerAuthUser();
 
-  if (!session?.user?.id) {
+  if (!user) {
     redirect("/sign-in");
   }
 
   const shop = await prisma.shop.findUnique({
-    where: { userId: session.user.id },
+    where: { userId: user.id },
     select: {
       id: true,
       products: {
