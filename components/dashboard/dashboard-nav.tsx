@@ -9,7 +9,6 @@ export const dashboardNavItems = [
   { href: "/dashboard/orders", label: "Orders" },
   { href: "/dashboard/products", label: "Products" },
   { href: "/dashboard/customers", label: "Customers" },
-  { href: "/dashboard/analytics", label: "Analytics" },
   { href: "/dashboard/settings/shop", label: "Shop Settings" },
   { href: "/dashboard/settings/account", label: "Account Settings" },
 ];
