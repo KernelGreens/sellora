@@ -6,7 +6,7 @@ const allowedDevOrigins = (process.env.ALLOWED_DEV_ORIGINS ?? "")
   .filter(Boolean);
 
 const nextConfig: NextConfig = {
-  allowedDevOrigins: ['192.168.0.4'],
+  allowedDevOrigins,
 };
 
 export default nextConfig;
