@@ -137,6 +137,7 @@ export async function createStorefrontOrder({
       id: true,
       name: true,
       slug: true,
+      isActive: true,
       whatsappNumber: true,
       products: {
         where: {
@@ -155,6 +156,10 @@ export async function createStorefrontOrder({
 
   if (!shop) {
     throw new OrderServiceError("Store not found", 404);
+  }
+
+  if (!shop.isActive) {
+    throw new OrderServiceError("Store is currently unavailable", 404);
   }
 
   const product = shop.products[0];

@@ -8,6 +8,24 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
+function normalizeClientRedirectUrl(url: string | null | undefined, fallback: string) {
+  if (!url) {
+    return fallback;
+  }
+
+  try {
+    const resolvedUrl = new URL(url, window.location.origin);
+
+    if (resolvedUrl.origin !== window.location.origin) {
+      return `${resolvedUrl.pathname}${resolvedUrl.search}${resolvedUrl.hash}` || fallback;
+    }
+
+    return resolvedUrl.toString();
+  } catch {
+    return fallback;
+  }
+}
+
 export default function SignInPage() {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
@@ -43,7 +61,9 @@ export default function SignInPage() {
       return;
     }
 
-    window.location.assign(result.url || callbackUrl);
+    window.location.assign(
+      normalizeClientRedirectUrl(result.url, callbackUrl)
+    );
   }
 
   return (

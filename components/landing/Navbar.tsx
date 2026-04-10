@@ -45,10 +45,10 @@ const Navbar = () => {
             <a href="#faq" className="text-sm text-muted-foreground" onClick={() => setOpen(false)}>FAQ</a>
             <div className="flex gap-3 pt-2">
               <Button variant="outline" asChild className="flex-1">
-                <Link href="/signin">Sign In</Link>
+                <Link href="/sign-in">Sign In</Link>
               </Button>
               <Button asChild className="flex-1">
-                <Link href="/signup">Get Started</Link>
+                <Link href="/sign-up">Get Started</Link>
               </Button>
             </div>
           </div>

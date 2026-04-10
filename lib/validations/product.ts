@@ -14,6 +14,29 @@ export const sellerProductStockFilterOptions = [
   "UNTRACKED",
 ] as const;
 
+function isValidImageReference(value: string) {
+  if (value.startsWith("/")) {
+    return true;
+  }
+
+  try {
+    const url = new URL(value);
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
+const imageReferenceSchema = z
+  .string()
+  .trim()
+  .refine(
+    (value) => value === "" || isValidImageReference(value),
+    "Enter a valid image URL"
+  )
+  .optional()
+  .or(z.literal(""));
+
 export const createProductSchema = z.object({
   name: z
     .string()
@@ -41,12 +64,7 @@ export const createProductSchema = z.object({
     ])
     .optional(),
 
-  imageUrl: z
-    .string()
-    .trim()
-    .url("Enter a valid image URL")
-    .optional()
-    .or(z.literal("")),
+  imageUrl: imageReferenceSchema,
 
   isActive: z.boolean().optional().default(true),
 });

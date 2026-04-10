@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { StorefrontCheckoutForm } from "@/components/storefront/storefront-checkout-form";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 type StorefrontCheckoutPageProps = {
   params: Promise<{ slug: string }>;
   searchParams: Promise<{ productId?: string | string[]; quantity?: string | string[] }>;
@@ -40,6 +42,7 @@ export default async function StorefrontCheckoutPage({
       id: true,
       name: true,
       slug: true,
+      isActive: true,
       products: {
         where: {
           id: productId,
@@ -59,7 +62,7 @@ export default async function StorefrontCheckoutPage({
 
   const product = shop?.products[0];
 
-  if (!shop || !product) {
+  if (!shop || !shop.isActive || !product) {
     notFound();
   }
 

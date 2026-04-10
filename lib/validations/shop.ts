@@ -1,6 +1,29 @@
 import { z } from "zod";
 
-export const createShopSchema = z.object({
+function isValidImageReference(value: string) {
+  if (value.startsWith("/")) {
+    return true;
+  }
+
+  try {
+    const url = new URL(value);
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
+const imageReferenceSchema = z
+  .string()
+  .trim()
+  .refine(
+    (value) => value === "" || isValidImageReference(value),
+    "Enter a valid image URL"
+  )
+  .optional()
+  .or(z.literal(""));
+
+const baseShopSchema = z.object({
   name: z
     .string()
     .min(2, "Shop name must be at least 2 characters")
@@ -45,4 +68,12 @@ export const createShopSchema = z.object({
     .max(30, "Account number is too long"),
 });
 
+export const createShopSchema = baseShopSchema;
+
+export const updateShopSchema = baseShopSchema.extend({
+  logoUrl: imageReferenceSchema,
+  isActive: z.boolean().optional().default(true),
+});
+
 export type CreateShopInput = z.infer<typeof createShopSchema>;
+export type UpdateShopInput = z.infer<typeof updateShopSchema>;
