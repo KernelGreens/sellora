@@ -1,12 +1,23 @@
 "use client";
 
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { FormEvent, useState } from "react";
+import { FormEvent, use, useState } from "react";
 import { signIn } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+
+type SignInPageProps = {
+  searchParams: Promise<{
+    callbackUrl?: string | string[];
+    error?: string | string[];
+    success?: string | string[];
+  }>;
+};
+
+function getSearchParamValue(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value;
+}
 
 function normalizeClientRedirectUrl(url: string | null | undefined, fallback: string) {
   if (!url) {
@@ -26,11 +37,12 @@ function normalizeClientRedirectUrl(url: string | null | undefined, fallback: st
   }
 }
 
-export default function SignInPage() {
-  const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
-  const errorParam = searchParams.get("error");
-  const successParam = searchParams.get("success");
+export default function SignInPage({ searchParams }: SignInPageProps) {
+  const resolvedSearchParams = use(searchParams);
+  const callbackUrl =
+    getSearchParamValue(resolvedSearchParams.callbackUrl) || "/dashboard";
+  const errorParam = getSearchParamValue(resolvedSearchParams.error);
+  const successParam = getSearchParamValue(resolvedSearchParams.success);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
