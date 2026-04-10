@@ -3,7 +3,7 @@
 import type { FormEvent } from "react";
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import type { OrderStatus } from "@/lib/generated/prisma";
+import type { OrderStatus } from "@/lib/generated/prisma/client";
 import {
   getOrderStatusMeta,
   getAllowedOrderStatusTransitions,

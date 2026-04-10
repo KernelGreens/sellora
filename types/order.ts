@@ -1,4 +1,4 @@
-import type { OrderStatus, PaymentStatus } from "@/lib/generated/prisma";
+import type { OrderStatus, PaymentStatus } from "@/lib/generated/prisma/client";
 
 export type SellerOrderListItem = {
   id: string;

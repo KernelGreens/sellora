@@ -1,6 +1,6 @@
-import type { Prisma } from "@/lib/generated/prisma";
+import type { Prisma } from "@/lib/generated/prisma/client";
 import { randomUUID } from "node:crypto";
-import type { PaymentStatus } from "@/lib/generated/prisma";
+import type { PaymentStatus } from "@/lib/generated/prisma/client";
 import {
   canUpdateOrderStatus,
   getOrderStatusMeta,

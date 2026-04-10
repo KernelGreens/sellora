@@ -1,4 +1,4 @@
-import type { OrderStatus } from "@/lib/generated/prisma";
+import type { OrderStatus } from "@/lib/generated/prisma/client";
 
 export const ORDER_STATUS_META: Record<
   OrderStatus,

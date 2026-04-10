@@ -1,4 +1,4 @@
-import type { PaymentStatus } from "@/lib/generated/prisma";
+import type { PaymentStatus } from "@/lib/generated/prisma/client";
 
 export const PAYMENT_STATUS_META: Record<
   PaymentStatus,
