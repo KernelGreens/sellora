@@ -51,6 +51,16 @@ function getMaxUploadSizeBytes() {
   return DEFAULT_MAX_UPLOAD_SIZE_BYTES;
 }
 
+function getCloudinaryUploadFolder() {
+  const folder = process.env.CLOUDINARY_UPLOAD_FOLDER?.trim();
+
+  if (folder) {
+    return folder.replace(/^\/+|\/+$/g, "");
+  }
+
+  return "karacarta/product-images";
+}
+
 function getFileExtension(file: File) {
   const extensionFromName = path.extname(file.name).toLowerCase();
 
@@ -138,7 +148,7 @@ async function uploadToCloudinary(file: File): Promise<UploadResult> {
 
   const objectKey = createObjectKey(file);
   const timestamp = Math.floor(Date.now() / 1000);
-  const folder = "sellora/product-images";
+  const folder = getCloudinaryUploadFolder();
   const publicId = objectKey.replace(/\.[^.]+$/, "");
   const signatureBase = `folder=${folder}&public_id=${publicId}&timestamp=${timestamp}${apiSecret}`;
   const signature = createHash("sha1").update(signatureBase).digest("hex");
