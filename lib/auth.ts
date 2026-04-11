@@ -31,6 +31,7 @@ export const authOptions: NextAuthOptions = {
             id: true,
             email: true,
             fullName: true,
+            isAdmin: true,
             passwordHash: true,
           },
         });
@@ -44,6 +45,7 @@ export const authOptions: NextAuthOptions = {
           id: user.id,
           email: user.email,
           name: user.fullName,
+          isAdmin: user.isAdmin,
         };
       },
     }),
@@ -52,12 +54,14 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
+        token.isAdmin = user.isAdmin === true;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user && token.id) {
         session.user.id = token.id as string;
+        session.user.isAdmin = token.isAdmin === true;
       }
       return session;
     },

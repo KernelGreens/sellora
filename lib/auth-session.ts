@@ -7,6 +7,7 @@ export type AuthUser = {
   id: string;
   email: string | null;
   name: string | null;
+  isAdmin: boolean;
 };
 
 function getAuthSecret() {
@@ -94,6 +95,7 @@ function toAuthUser(token: JWT | null): AuthUser | null {
     id: token.id,
     email: typeof token.email === "string" ? token.email : null,
     name: typeof token.name === "string" ? token.name : null,
+    isAdmin: token.isAdmin === true,
   };
 }
 
