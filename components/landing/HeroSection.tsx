@@ -17,7 +17,7 @@ const HeroSection = () => {
             <span className="text-primary">in WhatsApp</span>
           </h1>
           <p className="mb-10 text-lg text-muted-foreground md:text-xl max-w-2xl mx-auto text-balance">
-            Sellora helps small businesses manage orders, track customers, and grow sales — all from the channels you already use.
+            KaraCarta helps small businesses manage orders, track customers, and grow sales — all from the channels you already use.
           </p>
           <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
             <Button variant="hero" size="xl" asChild>

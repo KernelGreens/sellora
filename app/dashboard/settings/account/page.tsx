@@ -237,7 +237,7 @@ export default async function DashboardAccountSettingsPage() {
               <CardTitle>Shop connection</CardTitle>
               <CardDescription>
                 A quick view of how this account currently connects to the
-                selling side of Sellora.
+                selling side of KaraCarta.
               </CardDescription>
             </CardHeader>
             <CardContent>

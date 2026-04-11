@@ -30,7 +30,7 @@ const HowItWorksSection = () => {
             Up and running in minutes
           </h2>
           <p className="text-muted-foreground text-lg">
-            No technical skills needed. If you can use WhatsApp, you can use Sellora.
+            No technical skills needed. If you can use WhatsApp, you can use KaraCarta.
           </p>
         </div>
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">

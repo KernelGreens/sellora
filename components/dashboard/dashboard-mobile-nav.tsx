@@ -38,7 +38,7 @@ export function DashboardMobileNav() {
         <SheetHeader className="border-b px-5 py-5 text-left">
           <SheetTitle asChild>
             <Link href="/dashboard" onClick={() => setOpen(false)}>
-              Sellora
+              KaraCarta
             </Link>
           </SheetTitle>
           <SheetDescription>

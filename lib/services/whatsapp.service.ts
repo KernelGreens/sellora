@@ -69,7 +69,7 @@ export function buildStorefrontOrderMessage({
   return [
     `Hello ${shopName},`,
     "",
-    "I just placed a new order on Sellora.",
+    "I just placed a new order on KaraCarta.",
     `Order Number: ${orderNumber}`,
     `Customer: ${customerName}`,
     `Phone: ${customerPhone}`,

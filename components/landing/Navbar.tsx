@@ -12,7 +12,7 @@ const Navbar = () => {
     <nav className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-md">
       <div className="container flex h-16 items-center justify-between">
         <Link href="/" className="text-xl font-bold text-primary">
-          Sellora
+          KaraCarta
         </Link>
 
         <div className="hidden items-center gap-8 md:flex">

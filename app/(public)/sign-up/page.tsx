@@ -19,7 +19,7 @@ export default async function SignUpPage({ searchParams }: SignUpPageProps) {
       {/* Left marketing panel */}
       <div className="hidden w-1/2 bg-primary p-12 lg:flex lg:flex-col lg:justify-between">
         <Link href="/" className="text-2xl font-bold text-primary-foreground">
-          Sellora
+          KaraCarta
         </Link>
 
         <div>
@@ -27,13 +27,13 @@ export default async function SignUpPage({ searchParams }: SignUpPageProps) {
             Start selling smarter today
           </h2>
           <p className="text-lg leading-relaxed text-primary-foreground/80">
-            Join thousands of small businesses using Sellora to organize orders,
+            Join thousands of small businesses using KaraCarta to organize orders,
             delight customers, and grow revenue.
           </p>
         </div>
 
         <p className="text-sm text-primary-foreground/60">
-          © {new Date().getFullYear()} Sellora
+          © {new Date().getFullYear()} KaraCarta
         </p>
       </div>
 
@@ -42,7 +42,7 @@ export default async function SignUpPage({ searchParams }: SignUpPageProps) {
         <div className="w-full max-w-md">
           <div className="mb-8 lg:hidden">
             <Link href="/" className="text-2xl font-bold text-primary">
-              Sellora
+              KaraCarta
             </Link>
           </div>
 

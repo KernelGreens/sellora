@@ -6,7 +6,7 @@ export function DashboardSidebar() {
     <aside className="hidden border-r bg-sidebar lg:block">
       <div className="p-6">
         <Link href="/dashboard" className="text-xl font-semibold">
-          Sellora
+          KaraCarta
         </Link>
       </div>
 

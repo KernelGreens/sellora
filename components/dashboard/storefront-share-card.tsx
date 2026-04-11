@@ -37,7 +37,7 @@ function buildShareMessage({
     ? trimmedDescription
     : `Discover ${shopName} and order quickly through a simple WhatsApp-first storefront.`;
 
-  return `Shop ${shopName} on Sellora.\n${pitch}\nBrowse and order here: ${storefrontUrl}`;
+  return `Shop ${shopName} on KaraCarta.\n${pitch}\nBrowse and order here: ${storefrontUrl}`;
 }
 
 function copyWithFallback(value: string) {
@@ -132,7 +132,7 @@ export function StorefrontShareCard({
 
     try {
       await navigator.share({
-        title: `Shop ${shopName} on Sellora`,
+        title: `Shop ${shopName} on KaraCarta`,
         text: payload.shareMessage,
         url: payload.storefrontUrl,
       });

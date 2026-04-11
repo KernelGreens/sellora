@@ -1,8 +1,8 @@
-Sellora — Social Commerce Made Simple
+KaraCarta — Social Commerce Made Simple
 
-Sellora is a modern platform designed to help small and medium-sized businesses (SMEs) manage and scale their sales operations across social channels like WhatsApp and Instagram.
+KaraCarta is a modern platform designed to help small and medium-sized businesses (SMEs) manage and scale their sales operations across social channels like WhatsApp and Instagram.
 
-In many emerging markets, businesses rely heavily on chat-based selling, which often leads to disorganized orders, lost customers, and inefficient workflows. Sellora solves this by providing a centralized system to manage orders, track payments, and build lasting customer relationships.
+In many emerging markets, businesses rely heavily on chat-based selling, which often leads to disorganized orders, lost customers, and inefficient workflows. KaraCarta solves this by providing a centralized system to manage orders, track payments, and build lasting customer relationships.
 
 🎯 Problem
 
@@ -17,7 +17,7 @@ This results in lost revenue, poor customer experience, and limited business gro
 
 💡 Solution
 
-Sellora transforms informal selling into structured commerce by offering:
+KaraCarta transforms informal selling into structured commerce by offering:
 
 🛍️ Storefront Links — Shareable mini shops for customers
 📦 Order Management — Track and manage all orders in one place
@@ -34,7 +34,7 @@ Validation: Zod
 UI Components: shadcn/ui
 🧱 Architecture Overview
 
-Sellora is built with a modular and scalable architecture:
+KaraCarta is built with a modular and scalable architecture:
 
 Multi-tenant shop-based system
 Transaction-safe order processing
@@ -52,7 +52,7 @@ Customer records
 Manual payment confirmation
 🔮 Vision
 
-Sellora aims to evolve into a full business operating system for SMEs, integrating:
+KaraCarta aims to evolve into a full business operating system for SMEs, integrating:
 
 Payments and financial services
 Inventory management

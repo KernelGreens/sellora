@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Sellora",
-  description: "Social Commerce infrastructure",
+  title: "KaraCarta",
+  description: "Social commerce infrastructure for WhatsApp-first sellers",
 };
 
 export default function RootLayout({

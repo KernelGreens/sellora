@@ -86,7 +86,7 @@ export default async function StorefrontSuccessPage({
           <p className="text-sm font-medium text-green-700">Order saved successfully</p>
           <h1 className="mt-3 text-3xl font-semibold">Send your order on WhatsApp</h1>
           <p className="mt-3 text-sm text-muted-foreground">
-            Your order has been recorded with Sellora. Send the prepared WhatsApp message so the seller can confirm availability and payment.
+            Your order has been recorded with KaraCarta. Send the prepared WhatsApp message so the seller can confirm availability and payment.
           </p>
 
           <div className="mt-6 rounded-2xl border bg-muted/20 p-5">

@@ -87,7 +87,7 @@ export default function SignInPage({ searchParams }: SignInPageProps) {
     <div className="flex min-h-screen">
       <div className="hidden w-1/2 bg-primary p-12 lg:flex lg:flex-col lg:justify-between">
         <Link href="/" className="text-2xl font-bold text-primary-foreground">
-          Sellora
+          KaraCarta
         </Link>
 
         <div>
@@ -100,7 +100,7 @@ export default function SignInPage({ searchParams }: SignInPageProps) {
         </div>
 
         <p className="text-sm text-primary-foreground/60">
-          © {new Date().getFullYear()} Sellora
+          © {new Date().getFullYear()} KaraCarta
         </p>
       </div>
 
@@ -108,11 +108,11 @@ export default function SignInPage({ searchParams }: SignInPageProps) {
         <div className="w-full max-w-md">
           <div className="mb-8 lg:hidden">
             <Link href="/" className="text-2xl font-bold text-primary">
-              Sellora
+              KaraCarta
             </Link>
           </div>
 
-          <h1 className="mb-2 text-2xl font-bold">Sign in to Sellora</h1>
+          <h1 className="mb-2 text-2xl font-bold">Sign in to KaraCarta</h1>
           <p className="mb-8 text-muted-foreground">
             Enter your credentials to access your dashboard.
           </p>

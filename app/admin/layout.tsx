@@ -25,7 +25,7 @@ export default async function AdminLayout({
           <div className="min-w-0">
             <div className="flex items-center gap-3">
               <Link href="/admin" className="text-lg font-semibold tracking-tight">
-                Sellora Admin
+                KaraCarta Admin
               </Link>
               <span className="rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
                 Internal

@@ -4,7 +4,7 @@ const testimonials = [
   {
     name: "Amara O.",
     role: "Fashion Seller, Lagos",
-    quote: "I used to lose track of at least 5 orders every week. With Sellora, everything is organized and my customers trust me more.",
+    quote: "I used to lose track of at least 5 orders every week. With KaraCarta, everything is organized and my customers trust me more.",
   },
   {
     name: "Chidinma E.",
@@ -24,10 +24,10 @@ const TestimonialsSection = () => {
       <div className="container">
         <div className="mx-auto mb-14 max-w-2xl text-center">
           <h2 className="mb-4 text-3xl font-bold md:text-4xl">
-            Sellers love Sellora
+            Sellers love KaraCarta
           </h2>
           <p className="text-muted-foreground text-lg">
-            Join thousands of small businesses already growing with Sellora.
+            Join thousands of small businesses already growing with KaraCarta.
           </p>
         </div>
         <div className="grid gap-8 md:grid-cols-3">

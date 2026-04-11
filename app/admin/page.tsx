@@ -3,8 +3,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { getAdminOverviewData } from "@/lib/services/admin.service";
 
 export const metadata: Metadata = {
-  title: "Admin | Sellora",
-  description: "Internal platform overview for Sellora operators.",
+  title: "Admin | KaraCarta",
+  description: "Internal platform overview for KaraCarta operators.",
 };
 
 const numberFormatter = new Intl.NumberFormat("en-US");
