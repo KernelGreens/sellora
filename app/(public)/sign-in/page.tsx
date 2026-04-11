@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { FormEvent, use, useState } from "react";
-import { signIn } from "next-auth/react";
+import { getSession, signIn } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -39,8 +39,9 @@ function normalizeClientRedirectUrl(url: string | null | undefined, fallback: st
 
 export default function SignInPage({ searchParams }: SignInPageProps) {
   const resolvedSearchParams = use(searchParams);
-  const callbackUrl =
-    getSearchParamValue(resolvedSearchParams.callbackUrl) || "/dashboard";
+  const requestedCallbackUrl = getSearchParamValue(resolvedSearchParams.callbackUrl);
+  const callbackUrl = requestedCallbackUrl || "/dashboard";
+  const hasExplicitCallbackUrl = Boolean(requestedCallbackUrl);
   const errorParam = getSearchParamValue(resolvedSearchParams.error);
   const successParam = getSearchParamValue(resolvedSearchParams.success);
 
@@ -73,9 +74,13 @@ export default function SignInPage({ searchParams }: SignInPageProps) {
       return;
     }
 
-    window.location.assign(
-      normalizeClientRedirectUrl(result.url, callbackUrl)
-    );
+    const session = await getSession();
+    const targetUrl =
+      !hasExplicitCallbackUrl && session?.user?.isAdmin
+        ? "/admin"
+        : normalizeClientRedirectUrl(result.url, callbackUrl);
+
+    window.location.assign(targetUrl);
   }
 
   return (

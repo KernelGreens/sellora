@@ -2,6 +2,7 @@
 
 import { signIn } from "@/auth";
 import { redirect } from "next/navigation";
+import { prisma } from "@/lib/prisma";
 
 type AuthLikeError = Error & {
   type?: string;
@@ -22,13 +23,26 @@ function isRedirectError(error: unknown): error is { digest: string } {
 export async function signInAction(formData: FormData): Promise<void> {
   const email = String(formData.get("email") ?? "");
   const password = String(formData.get("password") ?? "");
-  const callbackUrl = String(formData.get("callbackUrl") ?? "/dashboard");
+  const rawCallbackUrl = formData.get("callbackUrl");
+  const hasExplicitCallbackUrl =
+    typeof rawCallbackUrl === "string" && rawCallbackUrl.length > 0;
+  const callbackUrl = hasExplicitCallbackUrl ? rawCallbackUrl : "/dashboard";
+  const normalizedEmail = email.toLowerCase().trim();
 
   try {
+    const user =
+      !hasExplicitCallbackUrl && normalizedEmail
+        ? await prisma.user.findUnique({
+            where: { email: normalizedEmail },
+            select: { isAdmin: true },
+          })
+        : null;
+
     await signIn("credentials", {
       email,
       password,
-      redirectTo: callbackUrl,
+      redirectTo:
+        !hasExplicitCallbackUrl && user?.isAdmin ? "/admin" : callbackUrl,
     });
   } catch (error: unknown) {
     if (isRedirectError(error)) {
