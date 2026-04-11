@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BrandLogo } from "@/components/brand/brand-logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,10 +17,9 @@ export default async function SignUpPage({ searchParams }: SignUpPageProps) {
 
   return (
     <div className="flex min-h-screen">
-      {/* Left marketing panel */}
       <div className="hidden w-1/2 bg-primary p-12 lg:flex lg:flex-col lg:justify-between">
-        <Link href="/" className="text-2xl font-bold text-primary-foreground">
-          KaraCarta
+        <Link href="/" className="inline-flex items-center text-primary-foreground">
+          <BrandLogo size="md" wordmarkClassName="text-primary-foreground" />
         </Link>
 
         <div>
@@ -37,12 +37,11 @@ export default async function SignUpPage({ searchParams }: SignUpPageProps) {
         </p>
       </div>
 
-      {/* Right form */}
       <div className="flex flex-1 items-center justify-center p-6">
         <div className="w-full max-w-md">
           <div className="mb-8 lg:hidden">
-            <Link href="/" className="text-2xl font-bold text-primary">
-              KaraCarta
+            <Link href="/" className="inline-flex items-center text-foreground">
+              <BrandLogo size="md" />
             </Link>
           </div>
 

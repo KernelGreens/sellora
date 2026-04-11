@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { BrandLogo } from "@/components/brand/brand-logo";
 import { SignOutButton } from "@/components/dashboard/sign-out-button";
 import { getServerAuthUser } from "@/lib/auth-session";
 
@@ -24,8 +25,14 @@ export default async function AdminLayout({
         <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
           <div className="min-w-0">
             <div className="flex items-center gap-3">
-              <Link href="/admin" className="text-lg font-semibold tracking-tight">
-                KaraCarta Admin
+              <Link
+                href="/admin"
+                className="inline-flex items-center gap-3 text-foreground"
+              >
+                <BrandLogo size="sm" />
+                <span className="text-sm font-medium uppercase tracking-[0.24em] text-muted-foreground">
+                  Admin
+                </span>
               </Link>
               <span className="rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
                 Internal

@@ -15,6 +15,10 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "KaraCarta",
   description: "Social commerce infrastructure for WhatsApp-first sellers",
+  icons: {
+    icon: "/brand/karacarta-mark.svg",
+    shortcut: "/brand/karacarta-mark.svg",
+  },
 };
 
 export default function RootLayout({

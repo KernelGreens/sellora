@@ -1,4 +1,5 @@
-import Link  from 'next/link';
+import Link from 'next/link';
+import { BrandLogo } from "@/components/brand/brand-logo";
 
 const Footer = () => {
   return (
@@ -6,8 +7,8 @@ const Footer = () => {
       <div className="container">
         <div className="grid gap-8 md:grid-cols-4">
           <div>
-            <Link href="/" className="text-xl font-bold text-primary">
-              KaraCarta
+            <Link href="/" className="inline-flex items-center text-foreground">
+              <BrandLogo size="sm" />
             </Link>
             <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
               The simplest way for small businesses to manage social commerce.

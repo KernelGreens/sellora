@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Menu } from "lucide-react";
+import { BrandLogo } from "@/components/brand/brand-logo";
 import { DashboardNav } from "@/components/dashboard/dashboard-nav";
 import { Button } from "@/components/ui/button";
 import {
@@ -37,8 +38,12 @@ export function DashboardMobileNav() {
       >
         <SheetHeader className="border-b px-5 py-5 text-left">
           <SheetTitle asChild>
-            <Link href="/dashboard" onClick={() => setOpen(false)}>
-              KaraCarta
+            <Link
+              href="/dashboard"
+              onClick={() => setOpen(false)}
+              className="inline-flex items-center text-foreground"
+            >
+              <BrandLogo size="sm" />
             </Link>
           </SheetTitle>
           <SheetDescription>

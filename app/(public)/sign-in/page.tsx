@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { FormEvent, use, useState } from "react";
 import { getSession, signIn } from "next-auth/react";
+import { BrandLogo } from "@/components/brand/brand-logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -86,8 +87,8 @@ export default function SignInPage({ searchParams }: SignInPageProps) {
   return (
     <div className="flex min-h-screen">
       <div className="hidden w-1/2 bg-primary p-12 lg:flex lg:flex-col lg:justify-between">
-        <Link href="/" className="text-2xl font-bold text-primary-foreground">
-          KaraCarta
+        <Link href="/" className="inline-flex items-center text-primary-foreground">
+          <BrandLogo size="md" wordmarkClassName="text-primary-foreground" />
         </Link>
 
         <div>
@@ -107,12 +108,12 @@ export default function SignInPage({ searchParams }: SignInPageProps) {
       <div className="flex flex-1 items-center justify-center p-6">
         <div className="w-full max-w-md">
           <div className="mb-8 lg:hidden">
-            <Link href="/" className="text-2xl font-bold text-primary">
-              KaraCarta
+            <Link href="/" className="inline-flex items-center text-foreground">
+              <BrandLogo size="md" />
             </Link>
           </div>
 
-          <h1 className="mb-2 text-2xl font-bold">Sign in to KaraCarta</h1>
+          <h1 className="mb-2 text-2xl font-bold">Sign in to <span className="text-primary">KaraCarta</span></h1>
           <p className="mb-8 text-muted-foreground">
             Enter your credentials to access your dashboard.
           </p>

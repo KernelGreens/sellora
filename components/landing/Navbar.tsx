@@ -1,9 +1,9 @@
-
 'use client'
-import Link  from 'next/link';
+import Link from 'next/link';
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
+import { BrandLogo } from "@/components/brand/brand-logo";
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
@@ -11,8 +11,8 @@ const Navbar = () => {
   return (
     <nav className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-md">
       <div className="container flex h-16 items-center justify-between">
-        <Link href="/" className="text-xl font-bold text-primary">
-          KaraCarta
+        <Link href="/" className="inline-flex items-center text-foreground">
+          <BrandLogo size="sm" />
         </Link>
 
         <div className="hidden items-center gap-8 md:flex">
