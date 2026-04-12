@@ -1,12 +1,17 @@
 import { prisma } from "@/lib/prisma";
+import type { AdminOrderFiltersInput } from "@/lib/validations/order";
 
 type AdminOverviewFilters = {
   userQuery?: string | null;
   shopQuery?: string | null;
+  orderQuery?: string | null;
+  orderStatus?: AdminOrderFiltersInput["orderStatus"];
+  paymentStatus?: AdminOrderFiltersInput["paymentStatus"];
 };
 
 const ADMIN_USER_LIST_LIMIT = 12;
 const ADMIN_SHOP_LIST_LIMIT = 12;
+const ADMIN_ORDER_LIST_LIMIT = 12;
 
 type ReadinessTone = "success" | "warning" | "muted";
 
@@ -151,9 +156,57 @@ function mapAdminShop(shop: {
   };
 }
 
+function mapAdminOrder(order: {
+  id: string;
+  orderNumber: string;
+  totalAmount: { toString(): string };
+  orderStatus: string;
+  paymentStatus: string;
+  createdAt: Date;
+  shop: {
+    name: string;
+    slug: string;
+    isActive: boolean;
+  };
+  customer: {
+    name: string;
+    phone: string;
+  };
+  items: Array<{
+    productNameSnapshot: string;
+    quantity: number;
+  }>;
+  _count: {
+    items: number;
+  };
+}) {
+  return {
+    id: order.id,
+    orderNumber: order.orderNumber,
+    totalAmount: order.totalAmount.toString(),
+    orderStatus: order.orderStatus,
+    paymentStatus: order.paymentStatus,
+    createdAt: order.createdAt.toISOString(),
+    shop: {
+      name: order.shop.name,
+      slug: order.shop.slug,
+      isActive: order.shop.isActive,
+    },
+    customer: {
+      name: order.customer.name,
+      phone: order.customer.phone,
+    },
+    items: order.items,
+    itemCount: order._count.items,
+  };
+}
+
 export async function getAdminOverviewData(filters: AdminOverviewFilters = {}) {
   const userQuery = normalizeQuery(filters.userQuery);
   const shopQuery = normalizeQuery(filters.shopQuery);
+  const orderQuery = normalizeQuery(filters.orderQuery);
+  const orderStatus = filters.orderStatus ?? "ALL";
+  const paymentStatus = filters.paymentStatus ?? "ALL";
 
   const userWhere = userQuery
     ? {
@@ -233,6 +286,79 @@ export async function getAdminOverviewData(filters: AdminOverviewFilters = {}) {
       }
     : undefined;
 
+  const orderWhere = {
+    ...(orderQuery
+      ? {
+          OR: [
+            {
+              orderNumber: {
+                contains: orderQuery,
+                mode: "insensitive" as const,
+              },
+            },
+            {
+              customer: {
+                is: {
+                  OR: [
+                    {
+                      name: {
+                        contains: orderQuery,
+                        mode: "insensitive" as const,
+                      },
+                    },
+                    {
+                      phone: {
+                        contains: orderQuery,
+                        mode: "insensitive" as const,
+                      },
+                    },
+                    {
+                      email: {
+                        contains: orderQuery,
+                        mode: "insensitive" as const,
+                      },
+                    },
+                  ],
+                },
+              },
+            },
+            {
+              shop: {
+                is: {
+                  OR: [
+                    {
+                      name: {
+                        contains: orderQuery,
+                        mode: "insensitive" as const,
+                      },
+                    },
+                    {
+                      slug: {
+                        contains: orderQuery,
+                        mode: "insensitive" as const,
+                      },
+                    },
+                  ],
+                },
+              },
+            },
+            {
+              items: {
+                some: {
+                  productNameSnapshot: {
+                    contains: orderQuery,
+                    mode: "insensitive" as const,
+                  },
+                },
+              },
+            },
+          ],
+        }
+      : {}),
+    ...(orderStatus !== "ALL" ? { orderStatus } : {}),
+    ...(paymentStatus !== "ALL" ? { paymentStatus } : {}),
+  };
+
   const [
     totalUsers,
     totalShops,
@@ -245,6 +371,8 @@ export async function getAdminOverviewData(filters: AdminOverviewFilters = {}) {
     filteredUsers,
     matchingShopsCount,
     filteredShops,
+    matchingOrdersCount,
+    filteredOrders,
   ] = await Promise.all([
     prisma.user.count(),
     prisma.shop.count(),
@@ -365,12 +493,55 @@ export async function getAdminOverviewData(filters: AdminOverviewFilters = {}) {
         },
       },
     }),
+    prisma.order.count({ where: orderWhere }),
+    prisma.order.findMany({
+      where: orderWhere,
+      orderBy: { createdAt: "desc" },
+      take: ADMIN_ORDER_LIST_LIMIT,
+      select: {
+        id: true,
+        orderNumber: true,
+        totalAmount: true,
+        orderStatus: true,
+        paymentStatus: true,
+        createdAt: true,
+        shop: {
+          select: {
+            name: true,
+            slug: true,
+            isActive: true,
+          },
+        },
+        customer: {
+          select: {
+            name: true,
+            phone: true,
+          },
+        },
+        items: {
+          take: 2,
+          orderBy: { createdAt: "asc" },
+          select: {
+            productNameSnapshot: true,
+            quantity: true,
+          },
+        },
+        _count: {
+          select: {
+            items: true,
+          },
+        },
+      },
+    }),
   ]);
 
   return {
     filters: {
       userQuery,
       shopQuery,
+      orderQuery,
+      orderStatus,
+      paymentStatus,
     },
     summary: {
       totalUsers,
@@ -428,6 +599,11 @@ export async function getAdminOverviewData(filters: AdminOverviewFilters = {}) {
       totalMatches: matchingShopsCount,
       pageSize: ADMIN_SHOP_LIST_LIMIT,
       items: filteredShops.map(mapAdminShop),
+    },
+    orders: {
+      totalMatches: matchingOrdersCount,
+      pageSize: ADMIN_ORDER_LIST_LIMIT,
+      items: filteredOrders.map(mapAdminOrder),
     },
   };
 }

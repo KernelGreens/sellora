@@ -61,6 +61,8 @@ export type UpdateSellerOrderStatusInput = z.infer<
 
 const sellerOrderStatusFilterOptions = ["ALL", ...ORDER_STATUS_UPDATE_OPTIONS] as const;
 const sellerPaymentStatusFilterOptions = ["ALL", ...PAYMENT_STATUS_OPTIONS] as const;
+const adminOrderStatusFilterOptions = ["ALL", ...ORDER_STATUS_UPDATE_OPTIONS] as const;
+const adminPaymentStatusFilterOptions = ["ALL", ...PAYMENT_STATUS_OPTIONS] as const;
 
 export const sellerOrderHistoryFiltersSchema = z.object({
   q: z
@@ -89,3 +91,29 @@ export const sellerOrderHistoryFiltersSchema = z.object({
 export type SellerOrderHistoryFiltersInput = z.infer<
   typeof sellerOrderHistoryFiltersSchema
 >;
+
+export const adminOrderFiltersSchema = z.object({
+  q: z
+    .string()
+    .trim()
+    .max(100, "Search query is too long")
+    .optional()
+    .or(z.literal("")),
+  orderStatus: z
+    .enum(adminOrderStatusFilterOptions, {
+      error: "Select a valid order status filter",
+    })
+    .optional(),
+  paymentStatus: z
+    .enum(adminPaymentStatusFilterOptions, {
+      error: "Select a valid payment status filter",
+    })
+    .optional(),
+  page: z.coerce
+    .number()
+    .int("Page must be a whole number")
+    .min(1, "Page must be at least 1")
+    .optional(),
+});
+
+export type AdminOrderFiltersInput = z.infer<typeof adminOrderFiltersSchema>;
