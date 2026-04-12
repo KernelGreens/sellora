@@ -1,5 +1,8 @@
 import { prisma } from "@/lib/prisma";
-import type { UpdateAccountSettingsInput } from "@/lib/validations/account";
+import type {
+  UpdateAccountSettingsInput,
+  UpdateAdminUserRoleInput,
+} from "@/lib/validations/account";
 import type { SellerAccountSettingsData } from "@/types/account";
 
 export class AccountServiceError extends Error {
@@ -139,4 +142,89 @@ export async function updateSellerAccountSettings(
   }
 
   return updatedAccount;
+}
+
+export async function updateAdminUserRole(
+  actingUserId: string,
+  targetUserId: string,
+  input: UpdateAdminUserRoleInput
+) {
+  const targetUser = await prisma.user.findUnique({
+    where: { id: targetUserId },
+    select: {
+      id: true,
+      fullName: true,
+      email: true,
+      isAdmin: true,
+      updatedAt: true,
+    },
+  });
+
+  if (!targetUser) {
+    throw new AccountServiceError("User not found", 404);
+  }
+
+  if (!input.isAdmin && actingUserId === targetUserId) {
+    throw new AccountServiceError(
+      "You cannot remove your own admin access from the admin panel.",
+      400
+    );
+  }
+
+  if (!input.isAdmin && targetUser.isAdmin) {
+    const totalAdmins = await prisma.user.count({
+      where: { isAdmin: true },
+    });
+
+    if (totalAdmins <= 1) {
+      throw new AccountServiceError(
+        "At least one admin must remain on the platform.",
+        400
+      );
+    }
+  }
+
+  const updatedUser = await prisma.$transaction(async (tx) => {
+    const nextUser = await tx.user.update({
+      where: { id: targetUserId },
+      data: {
+        isAdmin: input.isAdmin,
+      },
+      select: {
+        id: true,
+        fullName: true,
+        email: true,
+        isAdmin: true,
+        updatedAt: true,
+      },
+    });
+
+    await tx.adminAuditLog.create({
+      data: {
+        actorUserId: actingUserId,
+        action: input.isAdmin ? "USER_PROMOTED_TO_ADMIN" : "USER_REMOVED_FROM_ADMIN",
+        entityType: "USER",
+        entityId: nextUser.id,
+        summary: input.isAdmin
+          ? `${nextUser.fullName} was granted admin access.`
+          : `${nextUser.fullName} had admin access removed.`,
+        metadata: {
+          previousIsAdmin: targetUser.isAdmin,
+          nextIsAdmin: input.isAdmin,
+          targetEmail: nextUser.email,
+        },
+      },
+    });
+
+    return nextUser;
+  });
+
+  return {
+    id: updatedUser.id,
+    fullName: updatedUser.fullName,
+    email: updatedUser.email,
+    isAdmin: updatedUser.isAdmin,
+    updatedAt: updatedUser.updatedAt.toISOString(),
+    previousIsAdmin: targetUser.isAdmin,
+  };
 }

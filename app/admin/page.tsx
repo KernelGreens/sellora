@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { AdminActivityFeed } from "@/components/admin/admin-activity-feed";
 import { AdminShopStatusToggle } from "@/components/admin/admin-shop-status-toggle";
+import { AdminUserRoleToggle } from "@/components/admin/admin-user-role-toggle";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -365,6 +367,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                   <TableRow>
                     <TableHead>User</TableHead>
                     <TableHead>Role</TableHead>
+                    <TableHead>Action</TableHead>
                     <TableHead>Shop</TableHead>
                     <TableHead>Readiness</TableHead>
                     <TableHead>Joined</TableHead>
@@ -386,6 +389,13 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                         >
                           {user.isAdmin ? "Admin" : "Seller"}
                         </Badge>
+                      </TableCell>
+                      <TableCell className="whitespace-normal">
+                        <AdminUserRoleToggle
+                          userId={user.id}
+                          userName={user.fullName}
+                          isAdmin={user.isAdmin}
+                        />
                       </TableCell>
                       <TableCell className="whitespace-normal">
                         {user.shop ? (
@@ -727,6 +737,8 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
           )}
         </CardContent>
       </Card>
+
+      <AdminActivityFeed activities={data.activityLogs} />
     </div>
   );
 }

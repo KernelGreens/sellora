@@ -20,6 +20,13 @@ export const updateAccountSettingsSchema = z.object({
     .or(z.literal("")),
 });
 
+export const updateAdminUserRoleSchema = z.object({
+  isAdmin: z.boolean({
+    error: "Select a valid admin access state",
+  }),
+});
+
 export type UpdateAccountSettingsInput = z.infer<
   typeof updateAccountSettingsSchema
 >;
+export type UpdateAdminUserRoleInput = z.infer<typeof updateAdminUserRoleSchema>;

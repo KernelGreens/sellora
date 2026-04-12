@@ -135,6 +135,7 @@ export async function updateSellerShopSettings(
 }
 
 export async function updateAdminShopStatus(
+  actingUserId: string,
   shopId: string,
   input: UpdateAdminShopStatusInput
 ) {
@@ -153,18 +154,39 @@ export async function updateAdminShopStatus(
     throw new ShopServiceError("Shop not found", 404);
   }
 
-  const updatedShop = await prisma.shop.update({
-    where: { id: shopId },
-    data: {
-      isActive: input.isActive,
-    },
-    select: {
-      id: true,
-      name: true,
-      slug: true,
-      isActive: true,
-      updatedAt: true,
-    },
+  const updatedShop = await prisma.$transaction(async (tx) => {
+    const nextShop = await tx.shop.update({
+      where: { id: shopId },
+      data: {
+        isActive: input.isActive,
+      },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        isActive: true,
+        updatedAt: true,
+      },
+    });
+
+    await tx.adminAuditLog.create({
+      data: {
+        actorUserId: actingUserId,
+        action: input.isActive ? "SHOP_RESUMED" : "SHOP_PAUSED",
+        entityType: "SHOP",
+        entityId: nextShop.id,
+        summary: input.isActive
+          ? `${nextShop.name} storefront was resumed.`
+          : `${nextShop.name} storefront was paused.`,
+        metadata: {
+          previousIsActive: existingShop.isActive,
+          nextIsActive: input.isActive,
+          shopSlug: nextShop.slug,
+        },
+      },
+    });
+
+    return nextShop;
   });
 
   return {

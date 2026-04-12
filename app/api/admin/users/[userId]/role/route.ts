@@ -1,11 +1,14 @@
 import { NextResponse } from "next/server";
 import { getRequestAuthUser } from "@/lib/auth-session";
-import { ShopServiceError, updateAdminShopStatus } from "@/lib/services/shop.service";
-import { updateAdminShopStatusSchema } from "@/lib/validations/shop";
+import {
+  AccountServiceError,
+  updateAdminUserRole,
+} from "@/lib/services/account.service";
+import { updateAdminUserRoleSchema } from "@/lib/validations/account";
 
 type RouteContext = {
   params: Promise<{
-    shopId: string;
+    userId: string;
   }>;
 };
 
@@ -21,31 +24,31 @@ export async function PATCH(request: Request, context: RouteContext) {
   }
 
   const body = await request.json().catch(() => null);
-  const parsed = updateAdminShopStatusSchema.safeParse(body);
+  const parsed = updateAdminUserRoleSchema.safeParse(body);
 
   if (!parsed.success) {
     return NextResponse.json(
       {
-        error: "Invalid shop status payload",
+        error: "Invalid admin role payload",
         fieldErrors: parsed.error.flatten().fieldErrors,
       },
       { status: 400 }
     );
   }
 
-  const { shopId } = await context.params;
+  const { userId } = await context.params;
 
   try {
-    const shop = await updateAdminShopStatus(user.id, shopId, parsed.data);
+    const updatedUser = await updateAdminUserRole(user.id, userId, parsed.data);
 
-    return NextResponse.json(shop);
+    return NextResponse.json(updatedUser);
   } catch (error) {
-    if (error instanceof ShopServiceError) {
+    if (error instanceof AccountServiceError) {
       return NextResponse.json({ error: error.message }, { status: error.statusCode });
     }
 
     return NextResponse.json(
-      { error: "Unable to update shop status right now" },
+      { error: "Unable to update admin access right now" },
       { status: 500 }
     );
   }

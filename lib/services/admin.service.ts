@@ -12,6 +12,7 @@ type AdminOverviewFilters = {
 const ADMIN_USER_LIST_LIMIT = 12;
 const ADMIN_SHOP_LIST_LIMIT = 12;
 const ADMIN_ORDER_LIST_LIMIT = 12;
+const ADMIN_ACTIVITY_LIST_LIMIT = 10;
 
 type ReadinessTone = "success" | "warning" | "muted";
 
@@ -201,6 +202,34 @@ function mapAdminOrder(order: {
   };
 }
 
+function mapAdminActivity(activity: {
+  id: string;
+  action: string;
+  entityType: string;
+  entityId: string;
+  summary: string;
+  createdAt: Date;
+  actor: {
+    id: string;
+    fullName: string;
+    email: string;
+  };
+}) {
+  return {
+    id: activity.id,
+    action: activity.action,
+    entityType: activity.entityType,
+    entityId: activity.entityId,
+    summary: activity.summary,
+    createdAt: activity.createdAt.toISOString(),
+    actor: {
+      id: activity.actor.id,
+      fullName: activity.actor.fullName,
+      email: activity.actor.email,
+    },
+  };
+}
+
 export async function getAdminOverviewData(filters: AdminOverviewFilters = {}) {
   const userQuery = normalizeQuery(filters.userQuery);
   const shopQuery = normalizeQuery(filters.shopQuery);
@@ -373,6 +402,7 @@ export async function getAdminOverviewData(filters: AdminOverviewFilters = {}) {
     filteredShops,
     matchingOrdersCount,
     filteredOrders,
+    recentActivity,
   ] = await Promise.all([
     prisma.user.count(),
     prisma.shop.count(),
@@ -533,6 +563,25 @@ export async function getAdminOverviewData(filters: AdminOverviewFilters = {}) {
         },
       },
     }),
+    prisma.adminAuditLog.findMany({
+      orderBy: { createdAt: "desc" },
+      take: ADMIN_ACTIVITY_LIST_LIMIT,
+      select: {
+        id: true,
+        action: true,
+        entityType: true,
+        entityId: true,
+        summary: true,
+        createdAt: true,
+        actor: {
+          select: {
+            id: true,
+            fullName: true,
+            email: true,
+          },
+        },
+      },
+    }),
   ]);
 
   return {
@@ -605,5 +654,6 @@ export async function getAdminOverviewData(filters: AdminOverviewFilters = {}) {
       pageSize: ADMIN_ORDER_LIST_LIMIT,
       items: filteredOrders.map(mapAdminOrder),
     },
+    activityLogs: recentActivity.map(mapAdminActivity),
   };
 }
