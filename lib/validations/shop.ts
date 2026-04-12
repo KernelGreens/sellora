@@ -75,5 +75,12 @@ export const updateShopSchema = baseShopSchema.extend({
   isActive: z.boolean().optional().default(true),
 });
 
+export const updateAdminShopStatusSchema = z.object({
+  isActive: z.boolean({
+    error: "Select a valid storefront status",
+  }),
+});
+
 export type CreateShopInput = z.infer<typeof createShopSchema>;
 export type UpdateShopInput = z.infer<typeof updateShopSchema>;
+export type UpdateAdminShopStatusInput = z.infer<typeof updateAdminShopStatusSchema>;

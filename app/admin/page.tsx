@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { AdminShopStatusToggle } from "@/components/admin/admin-shop-status-toggle";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -485,6 +486,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                     <TableHead>Shop</TableHead>
                     <TableHead>Owner</TableHead>
                     <TableHead>Status</TableHead>
+                    <TableHead>Action</TableHead>
                     <TableHead>Activity</TableHead>
                     <TableHead>Readiness</TableHead>
                   </TableRow>
@@ -511,6 +513,13 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                         <Badge variant="outline" className={getShopStatusBadgeClassName(shop.isActive)}>
                           {shop.isActive ? "Active" : "Paused"}
                         </Badge>
+                      </TableCell>
+                      <TableCell className="whitespace-normal">
+                        <AdminShopStatusToggle
+                          shopId={shop.id}
+                          shopName={shop.name}
+                          isActive={shop.isActive}
+                        />
                       </TableCell>
                       <TableCell className="whitespace-normal">
                         <div className="space-y-1 text-sm text-muted-foreground">

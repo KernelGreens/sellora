@@ -1,6 +1,9 @@
 import { prisma } from "@/lib/prisma";
 import type { SellerShopSettingsData } from "@/types/shop";
-import type { UpdateShopInput } from "@/lib/validations/shop";
+import type {
+  UpdateAdminShopStatusInput,
+  UpdateShopInput,
+} from "@/lib/validations/shop";
 import { normalizeSlug } from "@/lib/utils/slug";
 
 export class ShopServiceError extends Error {
@@ -129,4 +132,47 @@ export async function updateSellerShopSettings(
   }
 
   return updatedShop;
+}
+
+export async function updateAdminShopStatus(
+  shopId: string,
+  input: UpdateAdminShopStatusInput
+) {
+  const existingShop = await prisma.shop.findUnique({
+    where: { id: shopId },
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      isActive: true,
+      updatedAt: true,
+    },
+  });
+
+  if (!existingShop) {
+    throw new ShopServiceError("Shop not found", 404);
+  }
+
+  const updatedShop = await prisma.shop.update({
+    where: { id: shopId },
+    data: {
+      isActive: input.isActive,
+    },
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      isActive: true,
+      updatedAt: true,
+    },
+  });
+
+  return {
+    id: updatedShop.id,
+    name: updatedShop.name,
+    slug: updatedShop.slug,
+    isActive: updatedShop.isActive,
+    updatedAt: updatedShop.updatedAt.toISOString(),
+    previousStatus: existingShop.isActive,
+  };
 }
